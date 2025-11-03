@@ -1,0 +1,118 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Dérapages</title>
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+  <div class="header">
+    <h3 class="header-title"> Compteur de dérapage de Lowen </h3>
+    {% if is_logged_in %}
+      <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="logout">Logout</button>
+      </form>
+    {% else %}
+      <form action="{% url 'login' %}" method="post" class="login-form">
+        {% csrf_token %}
+        <input type="password" name="code" placeholder="Secret code" required>
+        <button type="submit">C'est moi Lowen</button>
+      </form>
+    {% endif %}
+  </div>
+
+  <div class="sum">
+    <h2>Total: <span id="total-sum">{{ total_sum }} €</span></h2>
+  </div>
+  {% if is_logged_in %}
+    <div class="admin-controls">
+      <button id="hello-btn" class="red-btn">J'ai dérapé</button>
+    </div>
+  {% endif %}
+
+
+  <div class="events">
+    <h3>Dérapages</h3>
+    <ul id="event-list">
+      {% for e in events %}
+        <li><strong>{{ e.reason }}</strong> — {{ e.amount }} € ({{ e.date|date:"Y-m-d H:i" }})</li>
+      {% empty %}
+        <li>No events yet</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Popup Modal -->
+  <div id="popup" class="popup">
+    <div class="popup-content">
+      <h3>Add Event</h3>
+      <input type="text" id="reason" placeholder="Reason">
+      <input type="number" id="amount" step="0.01" placeholder="Amount (€)">
+      <div class="buttons">
+        <button id="submit-event">Submit</button>
+        <button id="close-popup">Cancel</button>
+      </div>
+    </div>
+  </div>
+<script>
+  const popup = document.getElementById('popup');
+  const helloBtn = document.getElementById('hello-btn');
+  const closeBtn = document.getElementById('close-popup');
+  const submitBtn = document.getElementById('submit-event');
+  const totalSumEl = document.getElementById('total-sum');
+
+  if (helloBtn) {
+    helloBtn.onclick = () => popup.style.display = 'flex';
+  }
+  if (closeBtn) {
+    closeBtn.onclick = () => popup.style.display = 'none';
+  }
+
+  if (submitBtn) {
+    submitBtn.onclick = async () => {
+      const reason = document.getElementById('reason').value.trim();
+      const amount = document.getElementById('amount').value.trim();
+      if (!reason || !amount) return alert('Please fill in both fields.');
+
+      const formData = new FormData();
+      formData.append('reason', reason);
+      formData.append('amount', amount);
+
+      const res = await fetch('{% url "add_event" %}', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await res.json();
+      if (data.error) return alert(data.error);
+
+      // Add new event at top of list
+      const list = document.getElementById('event-list');
+      const newItem = document.createElement('li');
+      newItem.innerHTML = `<strong>${data.reason}</strong> — ${data.amount} € (${data.date})`;
+      list.prepend(newItem);
+
+      // Animate total sum update
+      const current = parseFloat(totalSumEl.innerText.replace('€', '').trim()) || 0;
+      const target = parseFloat(data.total_sum);
+      const step = (target - current) / 20; // 20 steps for smoothness
+      let counter = 0;
+      const interval = setInterval(() => {
+        counter++;
+        const value = current + step * counter;
+        totalSumEl.innerText = value.toFixed(2) + ' €';
+        if (counter >= 20) clearInterval(interval);
+      }, 30);
+
+      popup.style.display = 'none';
+      document.getElementById('reason').value = '';
+      document.getElementById('amount').value = '';
+    };
+  }
+</script>
+
+</body>
+</html>
