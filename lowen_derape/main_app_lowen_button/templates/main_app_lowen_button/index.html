@@ -27,12 +27,10 @@
   <div class="sum">
     <h2>Total: <span id="total-sum">{{ total_sum }} €</span></h2>
   </div>
-  {% if is_logged_in %}
     <div class="admin-controls">
       <button id="hello-btn" class="red-btn">J'ai dérapé</button>
     </div>
-  {% endif %}
-
+<div id="toast" class="toast">Only LOWEN can press the button</div>
 
   <div class="events">
     <h3>Dérapages</h3>
@@ -56,7 +54,9 @@
       </div>
     </form>
   </div>
-</div><script>
+</div>
+
+<script>
   const popup = document.getElementById('popup');
   const helloBtn = document.getElementById('hello-btn');
   const closeBtn = document.getElementById('close-popup');
@@ -64,13 +64,26 @@
   const totalSumEl = document.getElementById('total-sum');
   const reasonInput = document.getElementById('reason');
   const amountInput = document.getElementById('amount');
+  const toast = document.getElementById('toast');
+  
+  const isLowen = {{ is_logged_in|yesno:"true,false" }};
+
+  function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 10000);
+  }
 
   if (helloBtn) {
     helloBtn.onclick = () => {
-      reasonInput.value = '';
-      amountInput.value = '2.00';
-      popup.style.display = 'flex';
-      reasonInput.focus();
+      if (isLowen) {
+        reasonInput.value = '';
+        amountInput.value = '2.00';
+        popup.style.display = 'flex';
+        reasonInput.focus();
+      } else {
+        showToast("Seul Lowen peut ajouter un dérapage");
+      }
     };
   }
 
@@ -78,7 +91,6 @@
 
   popupForm.onsubmit = async (e) => {
     e.preventDefault();
-
     const reason = reasonInput.value.trim();
     const amount = amountInput.value.trim();
     if (!reason || !amount) return alert('Please fill in both fields.');
@@ -87,11 +99,7 @@
     formData.append('reason', reason);
     formData.append('amount', amount);
 
-    const res = await fetch('{% url "add_event" %}', {
-      method: 'POST',
-      body: formData
-    });
-
+    const res = await fetch('{% url "add_event" %}', { method: 'POST', body: formData });
     const data = await res.json();
     if (data.error) return alert(data.error);
 
@@ -116,6 +124,11 @@
     reasonInput.value = '';
     amountInput.value = '2.00';
   };
+
+  // Optional: press Esc to close popup
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') popup.style.display = 'none';
+  });
 </script>
 
 </body>

@@ -19,10 +19,12 @@ body {
 
 .header input {
   padding: 5px;
+  font-size: medium;
 }
 
 .header button {
   padding: 5px 10px;
+  font-size: medium;
   cursor: pointer;
 }
 
@@ -68,7 +70,7 @@ body {
 .header-title{
   color: white;
   margin-right: auto;
-  font-size: 1.2em;
+  font-size: 2rem;
   margin-top: 0;
   margin-bottom: 0;
 }
@@ -119,4 +121,25 @@ body {
 #total-sum.updating {
   color: #28a745;
   transform: scale(1.1);
+}
+
+.toast {
+  font-size: 25px;
+  position: fixed;
+  bottom: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 12px 25px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  opacity: 0;
+  transition: bottom 0.4s ease, opacity 0.4s ease;
+  z-index: 9999;
+}
+
+.toast.show {
+  bottom: 30px;
+  opacity: 1;
 }
