@@ -1,0 +1,16 @@
+
+services:
+  web:
+    build: .
+    container_name: events_app
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:8042:8000"
+    volumes:
+      - ./lowen_derape:/app/lowen_derape
+
+    restart: unless-stopped
+    command: >
+        uv run gunicorn lowen_derape.wsgi:application
+        --bind 0.0.0.0:8000
