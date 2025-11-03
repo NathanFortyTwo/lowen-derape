@@ -29,6 +29,8 @@ COPY . /app/
 
 # Collect static files (optional)
 RUN uv run python manage.py collectstatic --noinput || true
+RUN uv run python manage.py migrate
+
 # Expose port
 EXPOSE 8000
 WORKDIR /app/lowen_derape
