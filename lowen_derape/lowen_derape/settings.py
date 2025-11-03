@@ -33,6 +33,10 @@ else:
 
 # Application definition
 
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'static'
+
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",

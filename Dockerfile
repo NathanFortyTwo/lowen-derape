@@ -29,9 +29,8 @@ COPY . /app/
 
 # Collect static files (optional)
 RUN uv run python manage.py collectstatic --noinput || true
-
 # Expose port
-EXPOSE 8042:8000
+EXPOSE 8000
 WORKDIR /app/lowen_derape
 # Start Gunicorn via uv
 CMD ["uv", "run", "gunicorn", "lowen_derape.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
