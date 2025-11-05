@@ -57,6 +57,10 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://lowen-derape.fun',
+]
+
 ROOT_URLCONF = "lowen_derape.urls"
 
 TEMPLATES = [
